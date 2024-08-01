@@ -1,0 +1,52 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "hidden": true,
+            "name": "base",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "installDir": "${sourceDir}/out/install/${presetName}",
+            "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        },
+        {
+            "name": "debug-clang",
+            "inherits": "base",
+            "displayName": "Debug (clang)",
+            "description": "Debug build using clang.",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "debug-gcc13",
+            "inherits": "base",
+            "displayName": "Debug (gcc13)",
+            "description": "Debug build using gcc13.",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/opt/homebrew/bin/gcc-13",
+                "CMAKE_CXX_COMPILER": "/opt/homebrew/bin/g++-13",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "debug",
+            "inherits": "base",
+            "displayName": "Debug (auto)",
+            "description": "Debug build using autodetect.",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ],
+    "testPresets": [
+        {
+          "name": "default",
+          "configurePreset": "debug",
+          "output": {"outputOnFailure": true},
+          "execution": {"noTestsAction": "error", "stopOnFailure": true}
+        }
+    ]
+}
