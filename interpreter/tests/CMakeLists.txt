@@ -7,10 +7,11 @@ find_package(GTest CONFIG REQUIRED)
 
 function(add_test_executable name)
     add_executable(${name} ${name}.cpp)
-    target_link_libraries(${name} PRIVATE fmt::fmt)
+
+    # target_link_libraries(${name} PRIVATE fmt::fmt)
     target_link_libraries(${name} PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
 
-    target_link_libraries(${name} PRIVATE liblox)
+    target_link_libraries(${name} PRIVATE libgravlax)
 
     target_include_directories(${name} PRIVATE ../include)
     target_include_directories(${name} PRIVATE include)

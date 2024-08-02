@@ -1,8 +1,8 @@
 #include <fmt/core.h>
+#include <gravlax/scanner.h>
 #include <iostream>
-#include <lox/scanner.h>
 
-namespace lox
+namespace gravlax
 {
 
 Scanner::Scanner()
@@ -254,4 +254,4 @@ void Scanner::addToken(Token::Type tokenType, Token::Literal literal)
     tokens.push_back(Token(tokenType, lexeme, literal, line));
 }
 
-}; // namespace lox
+}; // namespace gravlax
