@@ -3,6 +3,8 @@
 #include <string>
 #include <variant>
 
+#include <fmt/format.h>
+
 namespace gravlax
 {
 
@@ -69,4 +71,10 @@ struct Token {
     {
     }
 };
+
 }; // namespace gravlax
+
+template <> struct fmt::formatter<::gravlax::Token> : formatter<string_view> {
+    auto format(::gravlax::Token t,
+                format_context &ctx) const -> format_context::iterator;
+};

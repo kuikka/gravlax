@@ -8,6 +8,8 @@ find_package(GTest CONFIG REQUIRED)
 function(add_test_executable name)
     add_executable(${name} ${name}.cpp)
 
+    # target_compile_options(${name} PUBLIC -fprofile-instr-generate -fcoverage-mapping)
+
     # target_link_libraries(${name} PRIVATE fmt::fmt)
     target_link_libraries(${name} PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
 

@@ -1,3 +1,5 @@
+#include <fmt/core.h>
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -48,10 +50,18 @@ class ScannerTest : public ::testing::Test
         EXPECT_EQ(tokens.size(), expectedTypes.size());
     }
 
+    void dump(const std::vector<gravlax::Token> &tokens)
+    {
+        for (auto token : tokens) {
+            fmt::print("{}\n", token);
+        }
+    }
+
     void expect(std::string code,
                 std::initializer_list<WhatToExpect> expectedTypes)
     {
         tokens = scanner.scanString(code);
+        // dump(tokens);
         expectTokens(expectedTypes);
     }
 };
@@ -84,8 +94,6 @@ TEST_F(ScannerTest, NumericVariable_1)
                             {Token::Type::NUMBER, 1},
                             Token::Type::SEMICOLON,
                             Token::Type::END_OF_FILE});
-    EXPECT_EQ(tokens[1].lexeme, "foo");
-    EXPECT_EQ(std::get<double>(tokens[3].literal), 1.0f);
 }
 
 TEST_F(ScannerTest, NumericVariable_1_0)
@@ -96,6 +104,91 @@ TEST_F(ScannerTest, NumericVariable_1_0)
                               {Token::Type::NUMBER, 1.0},
                               Token::Type::SEMICOLON,
                               Token::Type::END_OF_FILE});
-    EXPECT_EQ(tokens[1].lexeme, "foo");
-    EXPECT_EQ(std::get<double>(tokens[3].literal), 1.0f);
+}
+
+TEST_F(ScannerTest, NumericVariable_10)
+{
+    expect("var foo = 10;", {Token::Type::VAR,
+                             {Token::Type::IDENTIFIER, "foo"},
+                             Token::Type::EQUAL,
+                             {Token::Type::NUMBER, 10},
+                             Token::Type::SEMICOLON,
+                             Token::Type::END_OF_FILE});
+}
+
+TEST_F(ScannerTest, PrintHelloWorld)
+{
+    expect("print \"Hello, world!\";", {Token::Type::PRINT,
+                                        {Token::Type::STRING, "Hello, world!"},
+                                        Token::Type::SEMICOLON,
+                                        Token::Type::END_OF_FILE});
+}
+
+TEST_F(ScannerTest, Statement_1)
+{
+    expect("var average = (min + max) / 2;",
+           {Token::Type::VAR,
+            {Token::Type::IDENTIFIER, "average"},
+            Token::Type::EQUAL,
+            Token::Type::LEFT_PAREN,
+            {Token::Type::IDENTIFIER, "min"},
+            Token::Type::PLUS,
+            {Token::Type::IDENTIFIER, "max"},
+            Token::Type::RIGHT_PAREN,
+            Token::Type::SLASH,
+            {Token::Type::NUMBER, 10},
+            Token::Type::SEMICOLON,
+            Token::Type::END_OF_FILE});
+}
+
+TEST_F(ScannerTest, IfStatement)
+{
+    expect("if (condition) { print \"yes\"; } else { print \"no\"; }",
+           {Token::Type::IF,
+            Token::Type::LEFT_PAREN,
+            {Token::Type::IDENTIFIER, "condition"},
+            Token::Type::RIGHT_PAREN,
+            Token::Type::LEFT_BRACE,
+            Token::Type::PRINT,
+            {Token::Type::STRING, "yes"},
+            Token::Type::SEMICOLON,
+            Token::Type::RIGHT_BRACE,
+            Token::Type::ELSE,
+            Token::Type::LEFT_BRACE,
+            Token::Type::PRINT,
+            {Token::Type::STRING, "no"},
+            Token::Type::SEMICOLON,
+            Token::Type::RIGHT_BRACE,
+            Token::Type::END_OF_FILE});
+}
+
+TEST_F(ScannerTest, WhileStatement)
+{
+    expect("var a = 1; while (a < 10) {   print a;   a = a + 1; } ",
+           {Token::Type::VAR,         {Token::Type::IDENTIFIER, "a"},
+            Token::Type::EQUAL,       {Token::Type::NUMBER, 1},
+            Token::Type::SEMICOLON,   Token::Type::WHILE,
+            Token::Type::LEFT_PAREN,  {Token::Type::IDENTIFIER, "a"},
+            Token::Type::LESS,        {Token::Type::NUMBER, 10},
+            Token::Type::RIGHT_PAREN, Token::Type::LEFT_BRACE,
+            Token::Type::PRINT,       {Token::Type::IDENTIFIER, "a"},
+            Token::Type::SEMICOLON,   {Token::Type::IDENTIFIER, "a"},
+            Token::Type::EQUAL,       {Token::Type::IDENTIFIER, "a"},
+            Token::Type::PLUS,        {Token::Type::NUMBER, 1},
+            Token::Type::SEMICOLON,   Token::Type::RIGHT_BRACE,
+            Token::Type::END_OF_FILE});
+}
+
+TEST_F(ScannerTest, Symbols)
+{
+    expect(", . - * ! != > >= <=",
+           {Token::Type::COMMA, Token::Type::DOT, Token::Type::MINUS,
+            Token::Type::STAR, Token::Type::BANG, Token::Type::BANG_EQUAL,
+            Token::Type::GREATER, Token::Type::GREATER_EQUAL,
+            Token::Type::LESS_EQUAL, Token::Type::END_OF_FILE});
+}
+
+TEST_F(ScannerTest, Comment)
+{
+    expect("// comment", {Token::Type::END_OF_FILE});
 }

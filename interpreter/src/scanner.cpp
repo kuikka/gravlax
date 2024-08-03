@@ -100,7 +100,7 @@ void Scanner::number()
 void Scanner::scanToken()
 {
     char c = advance();
-    fmt::print("Found character {} at offset {}\n", c, current - 1);
+    // fmt::print("Found character {} at offset {}\n", c, current - 1);
     switch (c) {
     case '(':
         addToken(Token::Type::LEFT_PAREN);
