@@ -14,7 +14,7 @@ using gravlax::utils::trim_string;
 std::vector<std::string> expressionData = {
     "Binary   : Expr left, Token operator, Expr right",
     "Grouping : Expr expression", "Literal  : Token::Literal value",
-    "Unary    : Token operator, Expr right"};
+    "Unary    : Token oper, Expr right"};
 
 struct ExpressionData {
     std::string name;
@@ -76,7 +76,7 @@ struct AstGenerator {
                                baseClassName, type.name);
         }
 
-        out << "};";
+        out << "};\n";
     }
 
     void generateType(ExpressionData &type)
@@ -99,18 +99,26 @@ struct AstGenerator {
     void writeHeader(std::ostream &out)
     {
         out << "#include <iostream>\n\n";
+
+        out << "#include <gravlax/expression.h>\n";
         out << "#include <gravlax/token.h>\n\n";
     }
 
     std::string field_to_string(std::pair<std::string, std::string> field)
     {
-        return fmt::format("const {} &{}", field.first, field.second);
+        return fmt::format("std::shared_ptr<{}> {}", field.first, field.second);
     }
 
     void writeType(std::ostream &out, ExpressionData &type)
     {
         out << fmt::format("struct {} : public {} {{\n", type.name,
                            baseClassName);
+
+        // data members
+        for (auto &field : type.fields) {
+            out << fmt::format("std::shared_ptr<{}> {};\n", field.first,
+                               field.second);
+        }
 
         // Constructor
         out << fmt::format("{}(", type.name);
@@ -132,6 +140,10 @@ struct AstGenerator {
         out << string_join(f, ", ");
 
         out << "\n{}\n";
+
+        out << "void accept(ExprVisitorBase & visitor) override {\n";
+        out << fmt::format("    visitor.visit{}Expr(*this);\n", type.name);
+        out << "};\n";
 
         out << "};\n";
     }

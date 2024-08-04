@@ -5,18 +5,8 @@
 namespace gravlax
 {
 
-struct Expression {
-    struct Binary {
-        std::shared_ptr<Expression> left;
-        Token oper;
-        std::shared_ptr<Expression> right;
-
-        Binary(std::shared_ptr<Expression> left, Token oper,
-               std::shared_ptr<Expression> right)
-            : left(left), oper(oper), right(right)
-        {
-        }
-    };
+struct Expr {
+    void accept(ExprVisitorBase &visitor) = 0;
 };
 
 }; // namespace gravlax
