@@ -24,3 +24,4 @@ function(add_test_executable name)
 endfunction()
 
 add_test_executable(test_scanner)
+add_test_executable(test_string_utils)

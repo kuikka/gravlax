@@ -16,7 +16,7 @@ struct Expression {
             : left(left), oper(oper), right(right)
         {
         }
-    }
+    };
 };
 
 }; // namespace gravlax

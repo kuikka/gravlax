@@ -7,3 +7,4 @@ target_compile_options(libgravlax PUBLIC -fprofile-arcs -ftest-coverage)
 target_link_options(libgravlax PUBLIC -fprofile-arcs -ftest-coverage)
 
 add_subdirectory(tests)
+add_subdirectory(tools)
