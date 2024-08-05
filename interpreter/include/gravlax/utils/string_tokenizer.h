@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -20,6 +21,16 @@ std::string trim_string(const std::string &s,
     }
 
     return std::string(s.cbegin() + start_of_txt, s.cbegin() + end_of_txt + 1);
+}
+
+std::string to_lowercase(const std::string &s)
+{
+    std::string ret{s};
+
+    std::transform(ret.begin(), ret.end(), ret.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+
+    return ret;
 }
 
 template <typename T>

@@ -103,10 +103,19 @@ std::string literal_to_string(Token::Literal literal)
     if (std::holds_alternative<std::string>(literal)) {
         return std::get<std::string>(literal);
     }
-    return std::string("n/a");
+    return std::string("Nil");
 }
 
 }; // namespace
+
+namespace gravlax
+{
+std::string Token::literal_as_string(const Token::Literal &lit)
+{
+    return literal_to_string(lit);
+}
+
+}; // namespace gravlax
 
 auto fmt::formatter<::gravlax::Token>::format(::gravlax::Token token,
                                               format_context &ctx) const

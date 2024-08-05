@@ -8,12 +8,13 @@
 #include <gravlax/utils/string_join.h>
 #include <gravlax/utils/string_tokenizer.h>
 
+using gravlax::utils::to_lowercase;
 using gravlax::utils::tokenize_string;
 using gravlax::utils::trim_string;
 
 std::vector<std::string> expressionData = {
-    "Binary   : Expr left, Token operator, Expr right",
-    "Grouping : Expr expression", "Literal  : Token::Literal value",
+    "Binary   : Expr left, Token oper, Expr right",
+    "Grouping : Expr expression", "Literal : Token::Literal value",
     "Unary    : Token oper, Expr right"};
 
 struct ExpressionData {
@@ -36,7 +37,8 @@ struct AstGenerator {
 
         generateVisitorBase(types);
         for (auto &type : types) {
-            generateType(std::cout, type);
+            // generateType(std::cout, type);
+            generateType(type);
         }
     }
 
@@ -65,24 +67,40 @@ struct AstGenerator {
 
     void generateVisitorBase(const std::vector<ExpressionData> &types)
     {
-        std::ostream &out = std::cout;
+        // std::ostream &out = std::cout;
 
-        out << "#include <expression.h>\n\n";
+        std::ofstream out;
+        std::string path = fmt::format("{}/{}", outputDir, "visitor_base.h");
+        out.open(path);
+
+        out << "#pragma once\n";
+
+        // out << "#include <gravlax/expression.h>\n\n";
+        out << "namespace gravlax::generated {\n";
+
+        // Forward declerations
+        for (auto &type : types) {
+            out << fmt::format("template <typename> struct {};\n", type.name);
+        }
+
+        out << "template <typename R>\n";
         out << fmt::format("class {}VisitorBase {{\n", baseClassName);
         out << "public:\n";
 
         for (auto &type : types) {
-            out << fmt::format("void visit{}{}({}& visitor) = 0;\n", type.name,
-                               baseClassName, type.name);
+            out << fmt::format("virtual R visit{}{}({}<R>& visitor) = 0;\n",
+                               type.name, baseClassName, type.name);
         }
 
         out << "};\n";
+        out << "}; // namespace gravlax::generated\n";
     }
 
     void generateType(ExpressionData &type)
     {
         std::ofstream out;
-        std::string path = fmt::format("{}/{}.h", outputDir, type.name);
+        std::string path =
+            fmt::format("{}/{}.h", outputDir, to_lowercase(type.name));
         out.open(path);
 
         generateType(out, type);
@@ -106,19 +124,35 @@ struct AstGenerator {
 
     std::string field_to_string(std::pair<std::string, std::string> field)
     {
-        return fmt::format("std::shared_ptr<{}> {}", field.first, field.second);
+        if (field.first == "Token::Literal") {
+            return fmt::format("{} {}", templatize(field.first), field.second);
+        } else {
+            return fmt::format("std::shared_ptr<{}> {}",
+                               templatize(field.first), field.second);
+        }
+    }
+
+    std::string templatize(const std::string &type)
+    {
+        if (type == "Token" || type == "Token::Literal") {
+            return type;
+        }
+        return fmt::format("{}<R>", type);
     }
 
     void writeType(std::ostream &out, ExpressionData &type)
     {
-        out << fmt::format("struct {} : public {} {{\n", type.name,
+        out << "namespace gravlax::generated {\n\n";
+
+        out << "template <typename R>\n";
+        out << fmt::format("struct {} : public {}<R> {{\n", type.name,
                            baseClassName);
 
         // data members
         for (auto &field : type.fields) {
-            out << fmt::format("std::shared_ptr<{}> {};\n", field.first,
-                               field.second);
+            out << fmt::format("{};\n", field_to_string(field));
         }
+        out << "\n";
 
         // Constructor
         out << fmt::format("{}(", type.name);
@@ -141,11 +175,13 @@ struct AstGenerator {
 
         out << "\n{}\n";
 
-        out << "void accept(ExprVisitorBase & visitor) override {\n";
-        out << fmt::format("    visitor.visit{}Expr(*this);\n", type.name);
+        out << "R accept(ExprVisitorBase<R> & visitor) override {\n";
+        out << fmt::format("    return visitor.visit{}Expr(*this);\n",
+                           type.name);
         out << "};\n";
 
         out << "};\n";
+        out << "}; // namespace gravlax::generated\n";
     }
 };
 

@@ -59,7 +59,9 @@ struct Token {
         END_OF_FILE
     };
 
-    using Literal = std::variant<std::string, double>;
+    // Since std::variant default constructs using the first alternative we use
+    // monostate to indicate a "Nil" value.
+    using Literal = std::variant<std::monostate, std::string, double>;
 
     Type type;
     std::string lexeme;
@@ -70,6 +72,13 @@ struct Token {
         : type(type), lexeme(lexeme), literal(literal), line(line)
     {
     }
+
+    Token(Token::Type type, std::string lexeme, int line)
+        : type(type), lexeme(lexeme), line(line)
+    {
+    }
+
+    static std::string literal_as_string(const Token::Literal &lit);
 };
 
 }; // namespace gravlax
