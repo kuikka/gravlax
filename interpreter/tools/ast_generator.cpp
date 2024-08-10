@@ -180,7 +180,7 @@ struct AstGenerator {
                            type.name);
         out << "};\n";
 
-        out << "};\n";
+        out << "};\n\n";
         out << "}; // namespace gravlax::generated\n";
     }
 };
