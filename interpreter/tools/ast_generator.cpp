@@ -116,7 +116,7 @@ struct AstGenerator {
 
     void writeHeader(std::ostream &out)
     {
-        out << "#include <iostream>\n\n";
+        out << "#pragma once\n\n";
 
         out << "#include <gravlax/expression.h>\n";
         out << "#include <gravlax/token.h>\n\n";
@@ -124,7 +124,7 @@ struct AstGenerator {
 
     std::string field_to_string(std::pair<std::string, std::string> field)
     {
-        if (field.first == "Token::Literal") {
+        if (field.first == "Token::Literal" || field.first == "Token") {
             return fmt::format("{} {}", templatize(field.first), field.second);
         } else {
             return fmt::format("std::shared_ptr<{}> {}",

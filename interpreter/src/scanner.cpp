@@ -27,11 +27,11 @@ Scanner::Scanner()
 
 Scanner::~Scanner() {}
 
-std::vector<Token> Scanner::scanString(const std::string &code)
+std::unique_ptr<std::vector<Token>> Scanner::scanString(const std::string &code)
 {
     this->code = code;
     scanTokens();
-    return tokens;
+    return std::make_unique<std::vector<Token>>(std::move(tokens));
 }
 
 void Scanner::scanTokens()

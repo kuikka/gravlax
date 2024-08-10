@@ -30,11 +30,11 @@ class ScannerTest : public ::testing::Test
 {
   public:
     gravlax::Scanner scanner;
-    std::vector<Token> tokens;
+    std::unique_ptr<std::vector<Token>> tokens;
 
     void expectTokens(std::initializer_list<WhatToExpect> expectedTypes)
     {
-        auto tokens_it = tokens.begin();
+        auto tokens_it = tokens->begin();
         auto expected_it = expectedTypes.begin();
         do {
             EXPECT_EQ(tokens_it->type, expected_it->tokenType);
@@ -45,9 +45,9 @@ class ScannerTest : public ::testing::Test
             }
             tokens_it++;
             expected_it++;
-        } while (tokens_it != tokens.end() &&
+        } while (tokens_it != tokens->end() &&
                  expected_it != expectedTypes.end());
-        EXPECT_EQ(tokens.size(), expectedTypes.size());
+        EXPECT_EQ(tokens->size(), expectedTypes.size());
     }
 
     void dump(const std::vector<gravlax::Token> &tokens)

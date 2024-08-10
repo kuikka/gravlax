@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <vector>
 
 #include <gravlax/token.h>
@@ -46,6 +47,6 @@ class Scanner
     Scanner();
     ~Scanner();
 
-    std::vector<Token> scanString(const std::string &code);
+    std::unique_ptr<std::vector<Token>> scanString(const std::string &code);
 };
 }; // namespace gravlax

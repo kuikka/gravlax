@@ -26,10 +26,11 @@ class AstPrinter : public gravlax::generated::ExprVisitorBase<std::string>
 
     std::string parenthesize(Expr<std::string> &expr);
 
-    std::string parenthesize(
-        std::string name,
-        std::convertible_to<std::shared_ptr<Expr<std::string>>> auto &...exprs);
+    std::string
+    parenthesize(std::string name,
+                 auto ...exprs);
 
-    std::string print(std::shared_ptr<Expr<std::string>> expr);
+    std::string print(Expr<std::string>& expr);
 };
+
 }; // namespace gravlax

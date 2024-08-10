@@ -1,14 +1,6 @@
 #include <fmt/core.h>
 #include <iostream>
 
-// #include <gravlax/expression.h>
-// #include <gravlax/token.h>
-
-// #include <gravlax/generated/binary.h>
-// #include <gravlax/generated/grouping.h>
-// #include <gravlax/generated/literal.h>
-// #include <gravlax/generated/unary.h>
-
 #include <gravlax/ast_printer.h>
 
 namespace gravlax
@@ -20,12 +12,12 @@ using gravlax::generated::Unary;
 
 std::string AstPrinter::visitBinaryExpr(Binary<std::string> &expr)
 {
-    return parenthesize(expr.oper->lexeme, expr.left, expr.right);
+    return parenthesize(expr.oper.lexeme, expr.left.get(), expr.right.get());
 }
 
 std::string AstPrinter::visitGroupingExpr(Grouping<std::string> &expr)
 {
-    return parenthesize("group", expr.expression);
+    return parenthesize("group", expr.expression.get());
 }
 
 std::string AstPrinter::visitLiteralExpr(Literal<std::string> &expr)
@@ -35,7 +27,7 @@ std::string AstPrinter::visitLiteralExpr(Literal<std::string> &expr)
 
 std::string AstPrinter::visitUnaryExpr(Unary<std::string> &expr)
 {
-    return parenthesize(expr.oper->lexeme, expr.right);
+    return parenthesize(expr.oper.lexeme, expr.right.get());
 }
 
 std::string AstPrinter::parenthesize(Expr<std::string> &expr)
@@ -45,15 +37,14 @@ std::string AstPrinter::parenthesize(Expr<std::string> &expr)
 
 std::string AstPrinter::parenthesize(
     std::string name,
-    std::convertible_to<std::shared_ptr<Expr<std::string>>> auto &...exprs)
+    auto ...exprs)
 {
     std::string s;
 
     s += "(";
     s += name;
 
-    for (auto &expr :
-         std::initializer_list<std::shared_ptr<Expr<std::string>>>{exprs...}) {
+    for (auto expr : {exprs...}) {
         s += " ";
         s += expr->accept(*this);
     }
@@ -63,9 +54,9 @@ std::string AstPrinter::parenthesize(
     return s;
 }
 
-std::string AstPrinter::print(std::shared_ptr<Expr<std::string>> expr)
+std::string AstPrinter::print(Expr<std::string>& expr)
 {
-    return expr->accept(*this);
+    return expr.accept(*this);
 }
 
 }; // namespace gravlax
@@ -83,7 +74,7 @@ int main()
         std::make_shared<Grouping<std::string>>(
             std::make_shared<Literal<std::string>>(45.67)));
 
-    std::cout << printer.print(expression);
+    std::cout << printer.print(*expression);
 
     return 0;
 }
