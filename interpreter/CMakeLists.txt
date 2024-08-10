@@ -2,7 +2,12 @@ find_package(fmt CONFIG REQUIRED)
 
 set(GRAVLAX_GENERATED_INCLUDE_PATH ${CMAKE_BINARY_DIR}/include/gravlax/generated)
 
-add_library(libgravlax STATIC src/main.cpp src/scanner.cpp src/token.cpp src/ast_printer.cpp)
+add_library(libgravlax STATIC
+    src/main.cpp
+    src/scanner.cpp
+    src/token.cpp
+    src/ast_printer.cpp
+    src/parser.cpp)
 target_link_libraries(libgravlax PRIVATE fmt::fmt)
 target_include_directories(libgravlax PUBLIC include)
 target_include_directories(libgravlax PUBLIC ${CMAKE_BINARY_DIR}/include)
