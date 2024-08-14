@@ -35,9 +35,7 @@ std::string AstPrinter::parenthesize(Expr<std::string> &expr)
     return expr.accept(*this);
 }
 
-std::string AstPrinter::parenthesize(
-    std::string name,
-    auto ...exprs)
+std::string AstPrinter::parenthesize(std::string name, auto... exprs)
 {
     std::string s;
 
@@ -54,7 +52,7 @@ std::string AstPrinter::parenthesize(
     return s;
 }
 
-std::string AstPrinter::print(Expr<std::string>& expr)
+std::string AstPrinter::print(Expr<std::string> &expr)
 {
     return expr.accept(*this);
 }

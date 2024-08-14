@@ -95,13 +95,16 @@ std::string type_to_string(Token::Type type)
     }
 }
 
-std::string literal_to_string(Token::Literal literal)
+std::string literal_to_string(const Token::Literal value)
 {
-    if (std::holds_alternative<double>(literal)) {
-        return std::to_string(std::get<double>(literal));
+    if (std::holds_alternative<bool>(value)) {
+        return std::to_string(std::get<bool>(value));
     }
-    if (std::holds_alternative<std::string>(literal)) {
-        return std::get<std::string>(literal);
+    if (std::holds_alternative<double>(value)) {
+        return std::to_string(std::get<double>(value));
+    }
+    if (std::holds_alternative<std::string>(value)) {
+        return std::get<std::string>(value);
     }
     return std::string("Nil");
 }

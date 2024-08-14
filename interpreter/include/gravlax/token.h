@@ -61,7 +61,7 @@ struct Token {
 
     // Since std::variant default constructs using the first alternative we use
     // monostate to indicate a "Nil" value.
-    using Literal = std::variant<std::monostate, std::string, double>;
+    using Literal = std::variant<std::monostate, bool, double, std::string>;
 
     Type type;
     std::string lexeme;

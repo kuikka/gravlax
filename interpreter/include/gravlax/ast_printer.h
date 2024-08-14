@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <variant>
 
 #include <gravlax/expression.h>
 
@@ -26,11 +27,9 @@ class AstPrinter : public gravlax::generated::ExprVisitorBase<std::string>
 
     std::string parenthesize(Expr<std::string> &expr);
 
-    std::string
-    parenthesize(std::string name,
-                 auto ...exprs);
+    std::string parenthesize(std::string name, auto... exprs);
 
-    std::string print(Expr<std::string>& expr);
+    std::string print(Expr<std::string> &expr);
 };
 
 }; // namespace gravlax

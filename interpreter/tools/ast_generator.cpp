@@ -12,15 +12,38 @@ using gravlax::utils::to_lowercase;
 using gravlax::utils::tokenize_string;
 using gravlax::utils::trim_string;
 
-std::vector<std::string> expressionData = {
-    "Binary   : Expr left, Token oper, Expr right",
-    "Grouping : Expr expression", "Literal : Token::Literal value",
-    "Unary    : Token oper, Expr right"};
-
 struct ExpressionData {
     std::string name;
     std::vector<std::pair<std::string, std::string>> fields;
 };
+
+// clang-format off
+std::vector<ExpressionData> expressionData = {
+    {"Binary", 
+        {
+            {"Expr", "left"},
+            {"Token", "oper"},
+            {"Expr", "right"}
+        }
+    },
+    {"Grouping",
+        {
+            {"Expr", "expression"}
+        }
+    },
+    {"Literal",
+        {
+            { "Token::Literal", "value" }
+        }
+    },
+    {"Unary",
+        {
+            { "Token", "oper" },
+            { "Expr", "right" }
+        }
+    }
+};
+// clang-format on
 
 struct AstGenerator {
     std::string outputDir;
@@ -31,12 +54,10 @@ struct AstGenerator {
     {
     }
 
-    void generate(const std::vector<std::string> &expressionData)
+    void generate(const std::vector<ExpressionData> &expressionData)
     {
-        std::vector<ExpressionData> types = parseExpressionData(expressionData);
-
-        generateVisitorBase(types);
-        for (auto &type : types) {
+        generateVisitorBase(expressionData);
+        for (auto &type : expressionData) {
             // generateType(std::cout, type);
             generateType(type);
         }
@@ -96,7 +117,7 @@ struct AstGenerator {
         out << "}; // namespace gravlax::generated\n";
     }
 
-    void generateType(ExpressionData &type)
+    void generateType(const ExpressionData &type)
     {
         std::ofstream out;
         std::string path =
@@ -108,7 +129,7 @@ struct AstGenerator {
         out.close();
     }
 
-    void generateType(std::ostream &out, ExpressionData &type)
+    void generateType(std::ostream &out, const ExpressionData &type)
     {
         writeHeader(out);
         writeType(out, type);
@@ -124,7 +145,8 @@ struct AstGenerator {
 
     std::string field_to_string(std::pair<std::string, std::string> field)
     {
-        if (field.first == "Token::Literal" || field.first == "Token") {
+        if (field.first.find("std::variant") != std::string::npos ||
+            field.first == "Token" || field.first == "Token::Literal") {
             return fmt::format("{} {}", templatize(field.first), field.second);
         } else {
             return fmt::format("std::shared_ptr<{}> {}",
@@ -134,13 +156,19 @@ struct AstGenerator {
 
     std::string templatize(const std::string &type)
     {
-        if (type == "Token" || type == "Token::Literal") {
+        if (type == "Token") {
+            return type;
+        }
+        if (type == "Token::Literal") {
+            return type;
+        }
+        if (type.find("std::variant") != std::string::npos) {
             return type;
         }
         return fmt::format("{}<R>", type);
     }
 
-    void writeType(std::ostream &out, ExpressionData &type)
+    void writeType(std::ostream &out, const ExpressionData &type)
     {
         out << "namespace gravlax::generated {\n\n";
 

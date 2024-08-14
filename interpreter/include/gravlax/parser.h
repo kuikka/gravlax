@@ -19,11 +19,14 @@ using gravlax::generated::Unary;
 
 class ParseError : public std::runtime_error
 {
+  public:
+    ParseError() : std::runtime_error("") {}
+    ParseError(std::string message) : std::runtime_error(message) {}
 };
 
 template <typename R> class Parser
 {
-    std::shared_ptr<std::vector<Token>> tokens;
+    std::unique_ptr<std::vector<Token>> tokens;
     int current = 0;
 
     std::shared_ptr<Expr<R>> expression() { return equality(); }
@@ -131,7 +134,7 @@ template <typename R> class Parser
         if (match(Token::Type::TRUE))
             return std::make_shared<Literal<R>>(true);
         if (match(Token::Type::NIL))
-            return std::make_shared<Literal<R>>({});
+            return std::make_shared<Literal<R>>(Token::Literal());
 
         if (match(Token::Type::NUMBER, Token::Type::STRING)) {
             return std::make_shared<Literal<R>>(previous().literal);
@@ -142,6 +145,8 @@ template <typename R> class Parser
             consume(Token::Type::RIGHT_PAREN, "Expect ')' after expression.");
             return expr; // std::make_shared<Grouping<R>>(expr);
         }
+
+        throw ParseError("Unknown token!");
     }
 
     void synchronize()
@@ -176,8 +181,16 @@ template <typename R> class Parser
         throw error(peek(), message);
     }
 
-    Expr<R> parse()
+    ParseError error(Token token, std::string message)
     {
+        return ParseError(message);
+    }
+
+  public:
+    std::shared_ptr<Expr<R>> parse(std::unique_ptr<std::vector<Token>> tokens)
+    {
+        this->tokens = std::move(tokens);
+
         try {
             return expression();
         } catch (ParseError error) {
